@@ -195,12 +195,11 @@ public class KdTree
     public Iterable<Point2D> range(RectHV rect)
     {
         Stack<Point2D> pointsInRect = new Stack<Point2D>();
-        Point2D center = new Point2D(((rect.xmin() + rect.xmax()) / 2), ((rect.ymin() + rect.ymax()) / 2));
-        range(root, rect, center, pointsInRect);
+        range(root, rect, pointsInRect);
         return pointsInRect;
     }
     
-    private void range(Node at, RectHV rect, Point2D center, Stack<Point2D> pointsInRect)
+    private void range(Node at, RectHV rect, Stack<Point2D> pointsInRect)
     {
         if (at == null)
         {
@@ -210,13 +209,27 @@ public class KdTree
         {
             pointsInRect.push(at.getPoint());
         }
-        if (at.getLeft() != null && at.getLeft().getPoint().distanceSquaredTo(center) < at.getPoint().distanceSquaredTo(center))
+        if (at.isVertical())
         {
-            range(at.getLeft(), rect, center, pointsInRect);
+            if (at.getPoint().x() < rect.xmin()) // go left
+            {
+                range(at.getLeft(), rect, pointsInRect);
+            }
+            if (at.getPoint().x() > rect.xmax()) // go right
+            {
+                range(at.getRight(), rect, pointsInRect);
+            }
         }
-        if (at.getRight() != null && at.getRight().getPoint().distanceSquaredTo(center) < at.getPoint().distanceSquaredTo(center))
+        else
         {
-            range(at.getRight(), rect, center, pointsInRect);
+            if (at.getPoint().y() < rect.ymin()) // go left
+            {
+                range(at.getLeft(), rect, pointsInRect);
+            }
+            if (at.getPoint().y() > rect.ymax()) // go right
+            {
+                range(at.getRight(), rect, pointsInRect);
+            }
         }
     }
     
